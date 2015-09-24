@@ -6,12 +6,13 @@
 Welcome to CELAR's documentation!
 =================================
 
-Contents:
+.. Contents:
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 3
    
    intro
+   install
 
 ..
         Indices and tables
