@@ -1,6 +1,0 @@
-Introduction
-============
-
-CELAR General Architecture
---------------------------
-
