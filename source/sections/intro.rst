@@ -1,6 +1,0 @@
-Introduction
-============
-General Architecture
---------------------
-Deployment
-----------

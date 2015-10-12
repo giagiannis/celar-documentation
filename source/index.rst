@@ -9,11 +9,12 @@ Welcome to CELAR's documentation!
 .. Contents:
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 3
 
-   sections/intro
-   sections/install
+   sections/architecture
    sections/deployment
+   sections/install
+   sections/ha_deployment
    sections/example
    sections/changelog
 

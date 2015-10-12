@@ -1,8 +1,2 @@
-Production Deployment
-=====================
-HAProxy
--------
-pgpool
-------
-keepalived
-----------
+Deployment
+==========
