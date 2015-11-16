@@ -17,6 +17,12 @@ Installation
 ~~~~~~~~~~~~
 Configuration
 ~~~~~~~~~~~~~
+CELAR DataBase
+^^^^^^^^^^^^^
+Installation
+~~~~~~~~~~~~
+Configuration
+~~~~~~~~~~~~~
 Information System
 ^^^^^^^^^^^^^^^^^^
 Installation
