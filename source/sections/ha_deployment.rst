@@ -1,11 +1,6 @@
 HA Deployment
 =====================
-In this section we will describe a Highly Available installation of the CELAR Platform. The general architecture of the HA installation is provided in the following figure.
-
-.. image:: https://placeholdit.imgix.net/~text?txtsize=33&txt=350%C3%97150&w=350&h=150
-
-
-The installation consists of a cluster of endpoint servers, a cluster of CELAR Server instances and a cluster of database servers. In this tutorial, we are describing an architecture where the database server instances are located in dedicated VMs; However, according to the scale and the usage of the CELAR Platform, the database servers could be placed into the same hosts with the CELAR Manager instances. 
+In this section we will describe a Highly Available installation of the CELAR Platform. The installation consists of a cluster of endpoint servers, a cluster of CELAR Server instances and a cluster of database servers. In this tutorial, we are describing an architecture where the database server instances are located in dedicated VMs; However, according to the scale and the usage of the CELAR Platform, the database servers could be placed into the same hosts with the CELAR Manager instances. 
 
 Before the installation and the configuration of the HA components, the following prerequisites should be satisfied:
 
