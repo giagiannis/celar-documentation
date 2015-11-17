@@ -47,13 +47,105 @@ We then need to restart the HAProxy instance,
 
 ``$ service haproxy restart``
 
-And then check the stats screen of the by pointing to http://``endpoint1``:5000/haproxy?stats.
+And then check the stats screen of the by pointing to http://endpoint1:5000/haproxy?stats.
 Finally, we repeat the same procedure for ``endpoint2`` and the rest of the machines of the endpoint cluster (if more than two).
 
 keepalived
 ----------
-`keepalived.org <http://www.keepalived.org/documentation.html>`_
 
+
+To avoid the single point of failure caused by the endpoint instance, we are using **keepalived**. Keepalived is executed in all endpoint instances; one is picked as the master instance and the rest are the slaves instances. The master instance is assigned with the ``PUBLIC_IP`` and is responsible to redirect the traffic to the CELAR Server instances. In case that the master instance fails, keepalived daemons are notified and elect an existing node that is promoted to the new master instance. It is very important that all endpoint instances (master and slaves) retain an identical environment, so that a smooth transition is guaranteed.
+
+To install the keepalived daemon, we use the console of ``endpoint1`` and execute (as root):
+
+``$ yum install -y keepalived``
+
+In case you want to use another installation method, please vitit `keepalived.org <http://www.keepalived.org/documentation.html>`_. You need to repeat this procedure for every endpoint instance. In our example, we assume that ``endpoint1`` is the master instance and ``endpoint2`` is the slave instance. Furthermore, ``eth0`` is the (possibly private) interface that connects ``endpoint1`` and ``endpoint2`` into the same network, used by keepalived for monitoring purposes. ``eth1`` is the interface that is used by the public IP address ``PUBLIC_IP``. 
+
+We update the file ``/etc/keepalived/keepalived.conf`` of ``endpoint1`` and append the following lines:
+::
+
+ vrrp_instance VI_1 {
+   debug 2
+   interface eth0                # interface to monitor
+   state MASTER
+   virtual_router_id 51          # Assign one ID for this route
+   priority 101                  # 101 on master, 100 on backup
+   unicast_src_ip endpoint1      # My IP
+   unicast_peer {
+      endpoint2                  # peer IP
+   }
+   notify /usr/local/bin/keepalivednotify.sh
+ }
+
+In case that more endpoint instances exist, we should append them into the unicast_peer section. Furthermore, we create the file ``/usr/local/bin/keepalivednotify.sh`` with this content:
+::
+
+ #!/bin/bash
+
+ PUBLIC_INTEFACE="eth1"
+ UDEV="/etc/udev/rules.d/70-persistent-net.rules"
+ PUBLIC_IP=           # the PUBLIC_IP address
+ SERVER_ID=           # the SERVER_ID of the current host as defined by the cloud provider
+     
+   
+ TYPE=$1
+ NAME=$2
+ STATE=$3
+   
+ LOG_FILE="/var/log/keepalived_script.log"
+ echo -e "$(date):\t$STATE, $NAME, $TYPE" >> $LOG_FILE
+ case $STATE in
+        "MASTER") 
+                # clear udev prior to attaching
+                sed -i "/$PUBLIC_INTEFACE/d" $UDEV
+                # detach IP
+                /usr/bin/kamaki ip detach $PUBLIC_IP
+                # attach IP
+                /usr/bin/kamaki ip attach $PUBLIC_IP --server-id $SERVER_ID
+                # DHCP call
+                dhclient -r $PUBLIC_INTEFACE
+                dhclient -v $PUBLIC_INTEFACE
+                exit 0
+                ;;
+        "BACKUP")
+                exit 0
+                ;;
+        "FAULT")  
+                exit 0
+                ;;
+        *)      echo "unknown state"
+                exit 1
+                ;;
+ esac
+
+
+Keepalived calls this script (also called a **notify** script) every time a transition is happening. The former slave node is notified that it becomes a master, and uses **kamaki**, an `~okeanos <http://okeanos.grnet.gr>`_ client, to detach the IP from the former master node and attach it to the current node. When the script execution is finished, it is guaranteed that the new master node has received the appropriate IP address.
+
+The same configuration files must be updated into ``endpoint2`` as well. Specifically, we edit ``/etc/keepalived/keepalived.conf`` and append the following lines:
+::
+
+ vrrp_instance VI_1 {
+   debug 2
+   interface eth0                # interface to monitor
+   state BACKUP
+   virtual_router_id 51          # Assign one ID for this route
+   priority 100                  # 101 on master, 100 on backup
+   unicast_src_ip endpoint       # My IP
+   unicast_peer {
+       endpoint1                 # Peer IP
+   }
+   notify /usr/local/bin/keepalivednotify.sh
+ }
+
+where we notice that the priority is lower than the priority of the MASTER node. We again create the file ``/usr/local/bin/keepalivednotify.sh`` as above, with the difference that SERVER_ID must now point to the server id of the ``endpoint2`` instance. Finally, we restart keepalived daemons to all the cluster by issuing
+
+``$ service keepalived restart``
+
+and the environment is now ready for use.
+
+
+**Note:** the file ``/usr/local/bin/keepalivednotify.sh`` contains all the necessary actions that must be executed to transfer the public IP address from the old master to the new master. The demo scripts presented here, assume that the cloud provider that the platform is built on is ~okeanos. However, by updating the scripts accordingly, one can easily port the setup to any cloud provider.
 
 pgpool
 ------
