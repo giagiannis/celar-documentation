@@ -43,21 +43,15 @@ CELAR Orchestrator VM Image  072f0e29-faf8-4941-a688-c7e4dcf200e7  072f0e29-faf8
 
 CELAR Server VM
 ---------------
-CELAR Manager
-^^^^^^^^^^^^^
-Installation
-~~~~~~~~~~~~
-Configuration
-~~~~~~~~~~~~~
+The CELAR Server VM is the static part of the platform. A single CELAR Server VM must be installed into the cloud provider and it is responsible for launching new application deployments. In this section, details are provided regarding the installation and configuration procedures of the modules hosted into the CELAR Server VM.
 
 CELAR DataBase
 ^^^^^^^^^^^^^^
+The CELAR DataBase is part of the CELAR Manager module. It is distributed in a different rpm package to enable the installation of this module into a dedicated VM. 
 
 Installation
 ~~~~~~~~~~~~
-The Celar project repository must be added in 
- */etc/yum.repos.d/celar.repo*
-You can innstall the CELAR Database rpm package from the package management
+You can install the CELAR Database rpm package from the package management
  $ ``yum install celar-db-rpm`` 
 
 This will also install the *PostgreSQL* database which a package dependency for the CELAR DataBase
@@ -75,13 +69,143 @@ The default configuration is the following:
 The default user and database is automatically created and so is the database structure
 
 the listen addresses in *postgresql.conf* are set to  *'0.0.0.0'* and all users are given *md5* access from all hosts
-                          
-Information System
-^^^^^^^^^^^^^^^^^^
+
+CELAR Manager
+^^^^^^^^^^^^^
+The CELAR Manager is the endpoint of the platform. It retains an API used to describe and deploy new applications, provide monitoring metrics to the clients, etc. 
+
 Installation
 ~~~~~~~~~~~~
+To install the CELAR Manager you must run the following command (as root):
+
+``$ yum install -y celar-server-rpm``
+
+This command will install the CELAR Manager, along with its dependencies. 
+
 Configuration
 ~~~~~~~~~~~~~
+The configuration file of the CELAR Manager is located at ``/opt/celar/celar-server/conf/celar-server.properties``. The available configuration options, along with their default values are listed below:
+
+::
+
+ # celar server properties file
+
+ # unencrypted traffic port
+ server.plain.port = 8080
+
+ # SSL configurations
+ server.ssl.port = 8443
+ server.ssl.keystore.path = 
+ server.ssl.keystore.password = 
+ 
+ # SlipStream properties
+ slipstream.username = 
+ slipstream.password = 
+ slipstream.connector.name = 
+ slipstream.url = 
+
+
+ #DB properties
+ backend = postgresql
+ postgresql.host = localhost
+ postgresql.port = 5432
+ postgresql.username = celaruser
+ postgresql.password = celar-user
+ postgresql.db_name =  celardb
+
+The user must define the url and the connector name of the running SlipStream installation, and -optionally- the username and the password of their SlipStream account. If those credentials are not defined into the configuration file, they must be provided through CAMF, else every request will occur for the specified user (used for standalone installations and debugging purposes). 
+
+The ``server.ssl`` properties are filled by the installer during the installation process, since a new java keystore is generated with a random password and placed under the root directory of the CELAR Manager. The user can override those default certificates with their own. Finally the user must define the DB properties, as updated during the installation of the celar-db component. 
+
+After the configuration of the module, the user must restart the CELAR Manager by issuing the following command (as root):
+
+``$ service celar-server restart``
+
+Information System
+===================
+
+The CELAR Information System  consists of two components, the **Information System Service** and the **Information System Frontend**. Each one is a separate application, which is distributed in its own package. Both components are written in Java and so **Java 1.7** should be present before installation. Additionally the *Information System Frontend* requires a Web Server, which provides a HTTP server and Servlet container capable of serving static and dynamic content. We recommend any of **Tomcat 7.0.xx** versions, but we strongly advise to use the latest one (*7.0.64 currently*).
+
+\* Both the *Information System Service* and the *Information System Frontend* installation scripts will try to fill out these prerequisites by downloading and installing Java and / or tomcat from external repositories.
+
+
+Installation
+------------
+To install or update the *Information System Service* you have to issue the following command
+
+::
+
+  yum install cloud-is-core
+
+\*For the *Information System Service* to operate correctly the CELAR Server Manager Module must be installed also and be accessible from the CELAR Information System Service.
+
+
+To install or update the *Information System Frontend* you have to issue the following command
+::
+
+ yum install cloud-is-web
+
+
+\*For the *Information System Frontend* to operate correctly the *Information System Service* must be installed also and be accessible from the *Information System Frontend*.
+
+
+Configuration
+-----------------
+
+
+Information System Service
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In any case, the default values in the configuration files can be changed, to customize the *Information System Service* behaviour. The Table below lists the available configuration properties. Excluding the ``*.port`` properties, any other properties can be changed at the runtime.  
+
+.. csv-table:: **Properties Options**
+   :header: Property Name,Default Value,Type,Description
+   :widths: 20, 10, 5, 40
+   :stub-columns: 1
+   :delim: ;
+
+   
+    common.mode;multi;String;The property indicates whether the IS server will run in 'single' or 'multi' mode. **single:** *1 user, 1 application, 1 deployment.* **multi:** *Multiple users, applications and deployments*. When operating in multi mode an extra data source endpoint is needed to provide this information. For the purposes of CELAR the IS can only operate in multi mode
+    common.collector;celar;String;Indicates the 'bundle of' connectors that will be used to obtain the needed data
+    dev.debug;TRUE;Boolean;If this option is true the service with log additional information for debugging purposes
+    log.location;/;String;The path where the log files will be saved
+    srv.port;8282;Integer ;The port which the service will listen to.
+    mgm.port;8383;Integer ;Management Interface / Socket Properties.
+    sampling.presampling;FALSE;Boolean;Indicates whether the sampling will be applied before the statistical operations or after. 
+    trend.sma.window;10;Integer;Sampling Moving Average window defines the smoothing windows for creating the trending line. **0:** *automatic*
+    trend.parallel.threads;4;Integer;The number of parallel that will be used during the trend calculation. **0:** *automatic*
+    sampling.threshhold;0.9;Double ;Sampling threshold defines the portion of the initial data that will be used as the sample.
+
+
+   
+To configure *Information System Service* a user must alter the files in
+::
+  
+  /usr/local/bin/celarISServerDir/resources/config
+
+The file ``server.properties`` contains the initialization and configuration values of the Inforamtion System Service. More specifically the property ``common.collector`` needs to be set to ``celar`` (which is the default value) if the Information System is installed under the CELAR umbrella or it should be set to ``dunmmy`` if someone wants to run Information System in a standalone mode e.g. for testing purposes. While the `mode` is set to ``dummy`` the service generates random data to showcase its functionality.  
+
+The property ``srv.port``, in the same configuration file, indicates the port where the service listens for Rest API Calls.  
+
+In a second step the properties at the path
+::
+
+   /usr/local/bin/celarISServerDir/resources/config/celar/endpoint.celarmanager.properties
+	
+need to be set to the correct CELAR Manager url parameters
+
+
+Information System Frontend
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The only parameter that needs to be configured for the *Information System Frontend* is the *Information System Service* address (isserver.ip) in order for those two to communicate. For the purposes of CELAR, the Information System Frontend is installed alongside with the Information System Service, at the CELAR Server. Thus, the default value of the ``isserver.ip`` is ``localhost``.
+
+The *Information System Frontend* can be configured after its installation, by altering the files in
+
+    {extracted_webapp_folder}/config
+
+More specifically the property ``issendpoint.ip`` in the ``init.properties`` file should be set to the address that the *Information System Service* listens.
+
 
 
 CELAR Orchestrator VM
