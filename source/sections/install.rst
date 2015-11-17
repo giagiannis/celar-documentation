@@ -127,7 +127,7 @@ After the configuration of the module, the user must restart the CELAR Manager b
 ``$ service celar-server restart``
 
 Information System
-===================
+^^^^^^^^^^^^^^^^^^
 
 The CELAR Information System  consists of two components, the **Information System Service** and the **Information System Frontend**. Each one is a separate application, which is distributed in its own package. Both components are written in Java and so **Java 1.7** should be present before installation. Additionally the *Information System Frontend* requires a Web Server, which provides a HTTP server and Servlet container capable of serving static and dynamic content. We recommend any of **Tomcat 7.0.xx** versions, but we strongly advise to use the latest one (*7.0.64 currently*).
 
@@ -135,7 +135,7 @@ The CELAR Information System  consists of two components, the **Information Syst
 
 
 Installation
-------------
+~~~~~~~~~~~~
 To install or update the *Information System Service* you have to issue the following command
 
 ::
@@ -155,11 +155,10 @@ To install or update the *Information System Frontend* you have to issue the fol
 
 
 Configuration
------------------
+~~~~~~~~~~~~~
 
 
-Information System Service
-^^^^^^^^^^^^^^^^^^^^^^^^^^
+**Information System Service**
 
 In any case, the default values in the configuration files can be changed, to customize the *Information System Service* behaviour. The Table below lists the available configuration properties. Excluding the ``*.port`` properties, any other properties can be changed at the runtime.  
 
@@ -200,8 +199,7 @@ In a second step the properties at the path
 need to be set to the correct CELAR Manager url parameters
 
 
-Information System Frontend
-^^^^^^^^^^^^^^^^^^^^^^^^^^^
+**Information System Frontend**
 
 The only parameter that needs to be configured for the *Information System Frontend* is the *Information System Service* address (isserver.ip) in order for those two to communicate. For the purposes of CELAR, the Information System Frontend is installed alongside with the Information System Service, at the CELAR Server. Thus, the default value of the ``isserver.ip`` is ``localhost``.
 
