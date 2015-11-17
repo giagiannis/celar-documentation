@@ -2,6 +2,11 @@ Installation & Configuration
 ============================
 This section describes the procedures through which you can manually install and configure the CELAR Platform modules.
 
+Prerequisites
+-------------
+Before the installation and the configuration of the CELAR Platform, we first need to have a running instance of SlipStream, a provisioning tool used by the platform to deploy and scale applications. The user may want to visit the SlipStream `guides <http://ssdocs.sixsq.com/en/latest/>`_ first, to deploy and configure a SlipStream instance pointing to the cloud provider the user wants to deploy their application into.
+
+
 Distribution
 ------------
 In this section we describe the distribution methods of the platform. 
