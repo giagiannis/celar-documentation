@@ -414,18 +414,43 @@ These probes can be found at the `JCatascopia Monitoring Probe Repository <https
 
 Decision Making Module
 ^^^^^^^^^^^^^^^^^^^^^^
+The Decision Making Module (DMM) is, as its name specifies, the driving force for CELAR’s decisions on application elasticity control. It comprises the following components, for managing cloud application elasticity: (i) MELA Analysis Service, (ii) rSYBL elasticity control service, and (iii) the smart deployment service.
+
 Installation
 ~~~~~~~~~~~~~
+The Decision Making Module can be installed with the execution of the following commands:
+
+::
+
+  $ curl -O https://raw.githubusercontent.com/CELAR/celar-deployment/master/orchestrator/dmm-install.sh
+  $ chmod +x dmm-install.sh
+  $ ./dmm-install.sh
+
+
 Configuration
 ~~~~~~~~~~~~~
+The DMM has the following configuration files, corresponding to its components:
+ - In ``rSYBL/rSYBL-analysis-engine/src/main/resources/config.properties``, the following properties can be set:
 
-MELA
-^^^^
-Installation
-~~~~~~~~~~~~
-Configuration
-~~~~~~~~~~~~~
+  - MonitoringServiceURL = http://localhost:8180/MELA/REST_WS - By default, MELA runs on 8180 on the Orchestrator VM. However, this can be changed in case MELA runs somewhere else.
+  - DecisionsDifferentiatedOnViolationDegree = true - DMM can increase the impact of its actions according to the violation degree of the SYBL requirements, if this configuration parameter is set to true
 
+  - ResourceLevelControlEnabled = true - DMM can scale vertically automatically resources associated to components if this parameter is set to true.
+  - REFRESH_PERIOD = 90000 – the iteration period for the rSYBL component
+  - CELAROrchestrator_Port = 80 – the port of the CELAR Orchestrator/Manager
+  - CELAROrchestrator_Host = localhost – the IP of the CELAR Orchestrator/Manager
+  - ADVISEEnabled = true – true if the learning is enabled
+  - LearningPeriod = 180000 – period for recomputing expected behavior
+
+ - In ``MELA-AnalysisService/MELA-SpaceAndPathwayAnalysisService/config/mela-analysis-service.properties`` one can set:
+
+  - analysisservice.elasticityanalysis=true – true in case the elasticity space should be computed
+  - analysisservice.space.analysis.pooling.enabled=true – if true, periodically compute the elasticity space, otherwise just per request
+  - analysisservice.space.analysis.period.s=600 – period for re-computing the elasticity space
+  - dataservice.ip=localhost – the IP of the MELA Data Service component
+  - cost.ip=localhost – the ip of the MELA Cost Evaluation component
+  - In MELA-ComplexCostEvaluationService/config/mela-cost-eval-service.properties
+  - dataservice.ip=localhost – the IP of the MELA Data Service component
 
 Client Tools
 ------------
