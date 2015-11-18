@@ -159,6 +159,9 @@ PGPool
   3. The pooling/High Availability proxy (PGPool) node
 
  **Note:** In order to leverage this HA mechanism, the DB clients need to be reconfigured in order to connect to the PGPool host and port (here 9999). 
+ The following figure shows how the resulting cluster operates. 
+
+  .. image:: pgpool.png
 
  The following sections assume a cluster of 1 master replica (``celardb-master``) and 1 replica node (``celardb-replica-1``). 
 
