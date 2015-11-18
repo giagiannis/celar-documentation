@@ -209,6 +209,9 @@ The *Information System Frontend* can be configured after its installation, by a
 
 More specifically the property ``issendpoint.ip`` in the ``init.properties`` file should be set to the address that the *Information System Service* listens.
 
+CELAR Orchestrator VM
+---------------------
+The CELAR Orchestrator VM contains all the necessary modules needed to monitor, take and enforce elastic decisions into an application.
 
 CELAR Orchestrator
 ^^^^^^^^^^^^^^^^^^
