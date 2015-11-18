@@ -142,94 +142,162 @@ and the environment is now ready for use.
 
 **Note:** the file ``/usr/local/bin/keepalivednotify.sh`` contains all the necessary actions that must be executed to transfer the public IP address from the old master to the new master. The demo scripts presented here, assume that the cloud provider that the platform is built on is ~okeanos. However, by updating the scripts accordingly, one can easily port the setup to any cloud provider.
 
-pgpool
+PGPool
 ------
+
+ In order to build a highly available deployment of CELAR DataBase, we will leverage the
+ mechanisms available from the DataBase backend system. The CELAR DataBase uses
+ PostgreSQL RDBMS, which offers what is called "Streaming Replication with Hot Standby”.
+ This technique was introduced in newer versions of PostgreSQL and builds upon a known
+ and pre-existing mechanism: the Write-Ahead Logging mechanism. The log is streamed
+ in real-time to one or more replica servers. The next 3 sections explain how to set up
+ this functionality by using PGPool as a proxy for the DB cluster.
+
+ The configuration steps are split for the 3 components of the HA cluster: 
+  1. The Master replica node
+  2. The Standby replica node
+  3. The pooling/High Availability proxy (PGPool) node
+
+ **Note:** In order to leverage this HA mechanism, the DB clients need to be reconfigured in order to connect to the PGPool host and port (here 9999). 
+
+ The following sections assume a cluster of 1 master replica (``celardb-master``) and 1 replica node (``celardb-replica-1``). 
+
 1. Master Configuration
 """"""""""""""""""""""""""
+ In order to configure a master-slave set-up for the master node, we need to apply some 
+ changes in the PostgreSQL configuration files. 
 
-``/var/lib/pgsql/data/postgresql.conf``
-::
+ **Note:** As a master replica one can use a pre-existing CELAR DataBase node, since 
+ this configuration does not affect the pre-existing data. However the process will restart the
+ DB service and thus interrupt all active connections to it. Therefore it is suggested that the 
+ following steps for the Master as well as the Standby nodes will be run on an idle setting.
 
- listen_addresses = '*'
- wal_level = hot_standby
- synchronous_commit = local
- max_wal_senders = 3
- wal_keep_segments = 8
- synchronous_standby_names = '*'
+Changes in ``/var/lib/pgsql/data/postgresql.conf``:
+ ::
 
-``/var/lib/pgsql/data/pg_hba.conf``
-::
+  listen_addresses = '*'
+  wal_level = hot_standby
+  hot_standby = on
+  synchronous_commit = local
+  max_wal_senders = 3
+  wal_keep_segments = 8
+  synchronous_standby_names = '*'
 
- local   all             all                                     trust
- host    all             all             127.0.0.1/32            trust
- host    all             all             ::1/128                 trust
- host   replication     replicator        0.0.0.0/0        md5
- host   all     all        0.0.0.0/0     md5
+Changes in ``/var/lib/pgsql/data/pg_hba.conf``:
+ ::
+
+  local   all             all                                     trust
+  host    all             all             127.0.0.1/32            trust
+  host    all             all             ::1/128                 trust
+  host   replication     replicator        0.0.0.0/0        md5
+  host   all     all        0.0.0.0/0     md5
 
 
 Restart the PostgreSQL service to load changes
 
-$ ``service postgresql restart`` 
+ $ ``service postgresql restart`` 
 
 Create replicator user with REPLICATION permissions (run as user "postgres")
  
-$ ``psql -U postgres -c "CREATE USER replicator REPLICATION LOGIN ENCRYPTED PASSWORD 'celar-db';"``
+ $ ``psql -U postgres -c "CREATE USER replicator REPLICATION LOGIN ENCRYPTED PASSWORD 'celar-db';"``
 
 Flush iptables 
 
-$ ``iptables -F #flush iptables``
+ $ ``iptables -F #flush iptables``
 
 Create testuser (as user "postgres")
 
-$ ``psql -U postgres -c "CREATE USER testuser createdb PASSWORD 'test';"``
+ $ ``psql -U postgres -c "CREATE USER testuser createdb PASSWORD 'test';"``
 
 Create the "testuser" database (as user "testuser")
 
-$ ``psql postgres testuser -c "CREATE database  testuser;"``
+ $ ``psql postgres testuser -c "CREATE database  testuser;"``
 
-1. Slave Configuration
+2. Standby Configuration
 """"""""""""""""""""""""""
+ Since we are configuring the replica server, we are assuming that we are starting with an empty PosgtreSQL data directory (``/var/lib/pgsql/data``) ie. a barebones installation.
 
-3. PGPool Server  Configuration
+ The first thing we are doing is using the automated backup tool to create a backup of the primary replica in the local data directory. The following command does so, using for the primary the hostname   ``celardb-master`` and the replication password ``celar-db``. The following is performed as user ``replicator`` in a streaming manner. Therefore, when the command finishes it is guaranteed to be up-to-  date with changes happening during its execution, but it will never finish if the master replica is under continuous load. Therefore this step should preferably be performed in an idle setting.
+
+Take the backup with this command: 
+
+ ``PGPASSWORD=celar-db pg_basebackup -h celardb-master -D /var/lib/pgsql/data -U replicator -v -P -X stream``
+
+ This actually creates copies of the configuration files from the master replica. Minimal changes are needed for configuring the standby replicas.
+
+In the file
+``/var/lib/pgsql/data/postgresql.conf`` set :
+ ::
+  hot_standby = on
+
+Create the recovery configuration file file be executing the following:
+ ::
+
+  # set recovery settings 
+  cat > /var/lib/pgsql/data/recovery.conf <<- EOF
+  standby_mode = 'on'
+  primary_conninfo = 'host=celardb-master port=5432 user=replicator password=celar-db '
+  trigger_file = '/tmp/promotedb.trigger'
+
+The postgresql service can now be started:
+
+ ``service postgresql start``
+
+As a precaution flush iptables:
+
+ ``iptables -F``
+
+
+
+3. PGPool Configuration
 """""""""""""""""""""""""""""""
-
-We will need to edit the PGPool configuration file in order to reflect the master-slave streaming replication configuration that we have set-up to our PostgreSQL cluster.
-
-(The following settings are for a cluster of 1 master ``celardb-master`` and 1 replica node ``celardb-replica-1``).
-
-Sample entries for the PGPool config file in ``/usr/local/etc/pgpool.conf``
-::
-
- listen_addresses = '*'
- port = 9999
- # - Backend Connection Settings -
- backend_hostname0 = 'celardb-master'
- backend_port0 = 5432
- backend_weight0 = 1
- backend_data_directory0 = '/var/lib/pgsql/data'
- backend_flag0 = 'ALLOW_TO_FAILOVER'
- backend_hostname1 = 'celardb-replica-1'
- backend_port1 = 5432
- backend_weight1 = 1
- backend_data_directory1 = '/var/lib/pgsql/data'
- backend_flag1 = 'ALLOW_TO_FAILOVER'
+ Download the latest version PGPool from `here <http://www.pgpool.net/mediawiki/index.php/Downloads>`_.
+ Extract and install it via the following command:
+ $ ``./configure && make && make install``
  
- pool_passwd = 'pool_passwd'        # File name of pool_passwd for md5 authentication. "" disables pool_passwd.
- connection_cache = on
- replication_mode = off        
- replicate_select = off
- load_balance_mode = on
- # Master-Slave mode 
- master_slave_mode = on
- master_slave_sub_mode = 'stream'
- # Streaming replication check user/password
- sr_check_user = 'testuser'
- sr_check_password = 'test'
- # Health check user password
- health_check_user = 'testuser'
- health_check_password = 'test'
- # failover called with %d: node id, %M old master node ID, %m new master node ID
- failover_command = '/usr/local/etc/my_failover.sh %d %M %m \n $(date)
- fail_over_on_backend_error = on
- recovery_user = 'nobody'
+ We will need to edit the PGPool configuration file in order to reflect the master-slave streaming replication configuration that we have set-up on our PostgreSQL cluster.
+
+Add the following entries for the PGPool config file in ``/usr/local/etc/pgpool.conf``
+ ::
+ 
+  listen_addresses = '*'
+  port = 9999
+  # - Backend Connection Settings -
+  backend_hostname0 = 'celardb-master'
+  backend_port0 = 5432
+  backend_weight0 = 1
+  backend_data_directory0 = '/var/lib/pgsql/data'
+  backend_flag0 = 'ALLOW_TO_FAILOVER'
+  backend_hostname1 = 'celardb-replica-1'
+  backend_port1 = 5432
+  backend_weight1 = 1
+  backend_data_directory1 = '/var/lib/pgsql/data'
+  backend_flag1 = 'ALLOW_TO_FAILOVER'
+  
+  pool_passwd = 'pool_passwd'        # File name of pool_passwd for md5 authentication. "" disables pool_passwd.
+  connection_cache = on
+  replication_mode = off        
+  replicate_select = off
+  load_balance_mode = on
+  # Master-Slave mode 
+  master_slave_mode = on
+  master_slave_sub_mode = 'stream'
+  # Streaming replication check user/password
+  sr_check_user = 'testuser'
+  sr_check_password = 'test'
+  # Health check user password
+  health_check_user = 'testuser'
+  health_check_password = 'test'
+  # failover called with %d: node id, %M old master node ID, %m new master node ID
+  failover_command = '/usr/local/etc/my_failover.sh %d %M %m \n $(date)
+  fail_over_on_backend_error = on
+  recovery_user = 'nobody'
+
+ (**Note:** Those entries are for hostnames ``celardb-master`` and ``celardb-replica-1``)
+
+We can now start the PGPool proxy service.
+
+The following command starts pgpool and logs its output in a rotate-log.
+
+``pgpool -n 2>&1 | /usr/local/apache2/bin/rotatelogs  -l -f /var/log/pgpool/pgpool.log.%A 86400 &``
 
