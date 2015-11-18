@@ -39,7 +39,7 @@ Precooked VM images
 To avoid manual configuration of the different submodules, the platform is also distributed as a set of precooked VM images, containing all the necessary components for a minimal CELAR installation. In the following table we provide the image IDs for the two different cloud providers CELAR was deployed and tested into.   
 
 ===========================  ====================================  ====================================
- \                           Okeanos                               Flexiant 
+VM Image\\Provider           Okeanos                               Flexiant 
 ===========================  ====================================  ====================================
 CELAR Server VM Image        072f0e29-faf8-4941-a688-c7e4dcf200e7  072f0e29-faf8-4941-a688-c7e4dcf200e7 
 CELAR Orchestrator VM Image  072f0e29-faf8-4941-a688-c7e4dcf200e7  072f0e29-faf8-4941-a688-c7e4dcf200e7 
@@ -169,9 +169,9 @@ In any case, the default values in the configuration files can be changed, to cu
    :delim: ;
 
    
-    common.mode;multi;String;The property indicates whether the IS server will run in 'single' or 'multi' mode. **single:** *1 user, 1 application, 1 deployment.* **multi:** *Multiple users, applications and deployments*. When operating in multi mode an extra data source endpoint is needed to provide this information. For the purposes of CELAR the IS can only operate in multi mode
+    common.mode;multi;String;The property indicates whether the IS server will run in 'single' or 'multi' mode. **single:** *1 user, 1 application, 1 deployment.* **multi:** *Multiple users, applications and deployments*. When operating in *multi* mode an extra data source endpoint is needed to provide this information. For the purposes of CELAR the IS can only operate in *multi* mode
     common.collector;celar;String;Indicates the 'bundle of' connectors that will be used to obtain the needed data
-    dev.debug;TRUE;Boolean;If this option is true the service with log additional information for debugging purposes
+    dev.debug;TRUE;Boolean;If this option is *true* the service with log additional information for debugging purposes
     log.location;/;String;The path where the log files will be saved
     srv.port;8282;Integer ;The port which the service will listen to.
     mgm.port;8383;Integer ;Management Interface / Socket Properties.
