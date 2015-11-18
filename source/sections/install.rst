@@ -210,27 +210,90 @@ The *Information System Frontend* can be configured after its installation, by a
 More specifically the property ``issendpoint.ip`` in the ``init.properties`` file should be set to the address that the *Information System Service* listens.
 
 
-
-CELAR Orchestrator VM
----------------------
 CELAR Orchestrator
 ^^^^^^^^^^^^^^^^^^
+The CELAR Orchestrator Module is responsible for the enforcement of the resizing actions, as those are decided by the Decision Making Module. Furthermore, the CELAR Orchestrator provides an API used by any interested module to obtain information regarding the current deployment state, past resizing actions along with their status, etc.
+
 Installation
 ~~~~~~~~~~~~
+You can install the CELAR Orchestrator module through the following command (run as root):
+
+``$ yum install -y celar-orchestrator-rpm``
+
+This command installs the CELAR Orchestrator along with all the needed dependencies.
+
 Configuration
 ~~~~~~~~~~~~~
+The configuration file of the CELAR Orchestrator module is located at ``/opt/celar/celar-orchestrator/conf/orchestrator.properties``. Below you can find a sample configuration file along with the default options:
+
+::
+
+ # At least one option from server.{plain,ssl}.port must be provided!
+ # unencrypted traffic port
+ server.plain.port = 80
+
+ # SSL configurations -- password and path will be filled during the installation
+ server.ssl.port = 443
+ server.ssl.keystore.path = 
+ server.ssl.keystore.password = 
+
+ # SlipStream properties
+ slipstream.deployment.id = 
+ slipstream.server.host = 
+ slipstream.username = 
+ slipstream.connector.name = 
+
+ # CELAR Server properties
+ celar.server.host = 
+ celar.server.port = 
+
+
+ # RSybl properties
+ rsybl.host = localhost
+ rsybl.port = 8280
+
+ # CELAR DB properties
+ backend=postgresql
+ postgresql.host = 109.231.126.66
+ postgresql.port=5432
+ postgresql.username=celaruser
+ postgresql.password=celar-user
+ postgresql.db_name=celardb
+
+ # CSAR properties
+ # if csar.path variable is set the orchestrator will not need to contact
+ # the CELAR Server for fetching it. Plz use it with your own risk: the CSAR
+ # files used to describe, deploy and forwarded to the DM  must be identical else
+ # you might face Undefined behavior.
+ csar.path = 
+
+The ``server.*`` parameters refer to the server configurations regarding its connectivity. By default, the server wait for HTTP connections in port 80 (unencrypted communication). SSL connections are also enabled if the ssl port is set (by default port 443); in that case the java keystore path must be set along with the keystore password. These values are initialized during the installation process of the rpm package, where a keystore with a self signed certificate is created, protected with a random password. The user can freely change this keystore with their own.
+
+The ``slipstream.*`` properties are dynamically configured when the command ``$ service celar-orchestrator start`` command is issued: the init script parses a configuration file dynamically created  by SlipStream and fills the necessary fields. These fields are necessary for the connectivity of the Orchestrator to SlipStream.
+
+The ``celar.*`` properties define the host and the port of the CELAR Manager (also auto filled during the init process) and the ``rsybl.*`` properties are used to point to a running Decision Making Module (by default, the Decision Making Module runs at the same host with the CELAR Orchestrator module). The ``backend`` and ``postgresql.*`` properties point to a running CELAR DB instance, where information regarding the deployment state, the enforced actions, etc. are stored and become available to the rest CELAR Modules. 
+
+Finally, the ``csar.path`` property points to a CSAR file containing the Application Description along with the deployment policies and deployment artifacts. This field is, by default, empty. It can be used for debugging reasons where the user must specify the path of a valid CSAR file. 
+
+After the configuration of the CELAR Orchestrator, the user must restart the Orchestrator by issuing:
+
+``$ service celar-orchestrator restart``
+
+
 Decision Making Module
 ^^^^^^^^^^^^^^^^^^^^^^
 Installation
 ~~~~~~~~~~~~~
 Configuration
 ~~~~~~~~~~~~~
+
 MELA
 ^^^^
 Installation
 ~~~~~~~~~~~~
 Configuration
 ~~~~~~~~~~~~~
+
 JCatascopia
 ^^^^^^^^^^^
 Installation
