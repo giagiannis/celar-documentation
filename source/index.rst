@@ -12,7 +12,6 @@ Welcome to CELAR's documentation!
    :maxdepth: 3
 
    sections/architecture
-   sections/deployment
    sections/install
    sections/ha_deployment
    sections/example
