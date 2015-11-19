@@ -454,9 +454,22 @@ The DMM has the following configuration files, corresponding to its components:
 
 Client Tools
 ------------
+In this section you will describe the installation process for the client tools of the CELAR Platform. 
+
 CAMF
 ^^^^
+CAMF is an Ecllipse-based tool, used to describe and deploy applications through the popular IDE. 
+
 Installation
 ~~~~~~~~~~~~
-Configuration
-~~~~~~~~~~~~~
+To install the latest CAMF version you have to:
+ - Download Eclipse (http://www.eclipse.org)
+
+ - Start Eclipse in a fresh workspace
+
+ - Install CAMF latest build from Nexus CELAR P2 repository
+	- Help -> Install New Software
+	- Add Repository
+	- Repository Name: CAMF
+	- Repository Location: http://snf-153388.vm.okeanos.grnet.gr/ceclipse/p2/
+	- Click Finish to complete and Restart Eclipse
