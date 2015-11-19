@@ -16,7 +16,7 @@ Welcome to CELAR's documentation!
    sections/install
    sections/ha_deployment
    sections/example
-   sections/changelog
+   sections/contact
 
 ..
         Indices and tables
