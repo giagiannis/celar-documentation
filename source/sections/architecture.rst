@@ -17,7 +17,7 @@ Overview
  3. Elasticity Platform
 
 ==========================
-1. Application Management Platform
+Application Management Platform
 ==========================
 
 ------------------------------------------------------------------------------------------
@@ -53,7 +53,7 @@ effort and in a portable way.
 
 
 ================================
-2. Cloud Information and Performance Monitoring
+Cloud Information and Performance Monitoring
 ================================
 
 The CELAR platform incorporates intelligent decision-
@@ -88,7 +88,7 @@ monitoring system. Furthermore, the CELAR MS supports aggregation and grouping o
 low-level metrics to generate high-level metrics at runtime
 
 ------------------------------------------------
-2.1 Monitoring System (JCatascopia)
+Monitoring System (JCatascopia)
 ------------------------------------------------
 The CELAR Monitoring System (CELAR MS), which is a fully-automated, multi-
 layer and platform independent monitoring system that runs in a non-intrusive
@@ -138,7 +138,7 @@ defined as follows:
    information stored in the Monitoring Database.
 
 ---------------------------------------------------------------
-2.2 Multi-Level Metrics Evaluation Module
+Multi-Level Metrics Evaluation Module
 ---------------------------------------------------------------
 
 Multi-Level Metric Evaluation Module, provides monitoring information mapped to the application structure for the CELAR
@@ -175,7 +175,7 @@ The architecture of MELA is presented in the following figure:
  .. image:: mela.png
 
 ---------------------------------------------------------------
-2.3  Information System
+Information System
 ---------------------------------------------------------------
 
 An Information System is the entity which purpose is to help the user interact with
@@ -225,7 +225,7 @@ provide the means for the user to interact with it. The Application User can acc
 functionality through the c-Eclipse Information Tool.
 
 ==========================
-3. Elasticity Platform
+Elasticity Platform
 ==========================
 
 The Elasticity Provisioning Platform hosts all central to CELAR operations and takes input
@@ -265,7 +265,7 @@ The Elasticity Platform consists of the following discrete modules:
 The function of each of those components is explained in the next sections.
 
 -----------------
-3.1 CELAR Server
+CELAR Server
 -----------------
 
 The CELAR Server is the "static" part of the CELAR platform. It is deployed into a
@@ -292,7 +292,7 @@ them are used by other modules (e.g., Information System, Decision-making module
 Those services are exposed via a REST API.
 
 ---------------------
-3.2 CELAR DataBase
+CELAR DataBase
 ---------------------
 
 The CELAR DB is the central repository where information about any component or the
@@ -317,7 +317,7 @@ CELAR-Server, in a different host.
 
 
 -----------------------
-3.3 CELAR Orchestrator
+CELAR Orchestrator
 -----------------------
 
 The CELAR Orchestrator is responsible for elastically scaling a specific application from its
@@ -335,7 +335,7 @@ Orchestrator provides an API used by the Decision Module to enforce resizing act
 retrieve information regarding the state of the resizing actions.
 
 -------------------------
-3.4 Application Profiler
+Application Profiler
 -------------------------
 
 The goal of the Application Profiler is to construct a knowledge-base for a newly described
@@ -348,7 +348,7 @@ for the entire configuration space. This is then given as input to the Decision 
 Deployment Modules.
 
 ---------------------------
-3.5 Decision Making Module
+Decision Making Module
 ---------------------------
 
 The Decision Making Module (DMM), part of the Elasticity Provisioning Platform, is in charge

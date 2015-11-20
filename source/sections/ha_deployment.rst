@@ -165,7 +165,7 @@ PGPool
 
  The following sections assume a cluster of 1 master replica (``celardb-master``) and 1 replica node (``celardb-replica-1``). 
 
-1. Master Configuration
+Master Configuration
 """"""""""""""""""""""""""
  In order to configure a master-slave set-up for the master node, we need to apply some 
  changes in the PostgreSQL configuration files. 
@@ -216,7 +216,7 @@ Create the "testuser" database (as user "testuser")
 
  $ ``psql postgres testuser -c "CREATE database  testuser;"``
 
-2. Standby Configuration
+Standby Configuration
 """"""""""""""""""""""""""
  Since we are configuring the replica server, we are assuming that we are starting with an empty PosgtreSQL data directory (``/var/lib/pgsql/data``) ie. a barebones installation.
 
@@ -252,7 +252,7 @@ As a precaution flush iptables:
 
 
 
-3. PGPool Configuration
+PGPool Configuration
 """""""""""""""""""""""""""""""
  Download the latest version PGPool from `here <http://www.pgpool.net/mediawiki/index.php/Downloads>`_.
  Extract and install it via the following command:
