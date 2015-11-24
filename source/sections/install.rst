@@ -38,14 +38,14 @@ Precooked VM images
 ^^^^^^^^^^^^^^^^^^^
 To avoid manual configuration of the different submodules, the platform is also distributed as a set of precooked VM images, containing all the necessary components for a minimal CELAR installation. In the following table we provide the URL for dowloading the images in zipped QCOW2 format. 
 
-=========================== ========================================================================================================================= ====================================
-VM Image Name               URL                                                                                                                       MD5                      
-=========================== ========================================================================================================================= ====================================
-CELAR Server VM Image       `image <http://snf-175960.vm.okeanos.grnet.gr/appls/0.2/celar-server-image-0.2.qcow2.gz>`_                                ``06e5f9f2f5515c51df619df35ac3b2f6``
-CELAR Orchestrator VM Image `image <http://snf-175960.vm.okeanos.grnet.gr/appls/0.2/celar-orchestrator-image-0.2.qcow2.gz>`_                          ``68ee7f92dc59c5a90c678e3f97b8735e``
-CELAR VM Centos Image       `image <http://snf-175960.vm.okeanos.grnet.gr/appls/0.2/celar-vm-centos6-image-0.2.qcow2.gz>`_                            ``9708c7203789e5d2a3a881509ff6adeb``
-CELAR VM Ubuntu Image       `image <http://snf-175960.vm.okeanos.grnet.gr/appls/0.2/celar-vm-ubuntu-image-0.2.qcow2.gz>`_                             ``3efe92cd4b06203c9f844c4cdf50a2c9``
-=========================== ========================================================================================================================= ====================================
+=========================== ===================================================================================== ====================================
+VM Image Name               URL                                                                                   MD5                      
+=========================== ===================================================================================== ====================================
+CELAR Server VM Image       http://snf-175960.vm.okeanos.grnet.gr/appls/0.2/celar-server-image-0.2.qcow2.gz       ``06e5f9f2f5515c51df619df35ac3b2f6``
+CELAR Orchestrator VM Image http://snf-175960.vm.okeanos.grnet.gr/appls/0.2/celar-orchestrator-image-0.2.qcow2.gz ``68ee7f92dc59c5a90c678e3f97b8735e``
+CELAR VM Centos Image       http://snf-175960.vm.okeanos.grnet.gr/appls/0.2/celar-vm-centos6-image-0.2.qcow2.gz   ``9708c7203789e5d2a3a881509ff6adeb``
+CELAR VM Ubuntu Image       http://snf-175960.vm.okeanos.grnet.gr/appls/0.2/celar-vm-ubuntu-image-0.2.qcow2.gz    ``3efe92cd4b06203c9f844c4cdf50a2c9``
+=========================== ===================================================================================== ====================================
 
 
 
